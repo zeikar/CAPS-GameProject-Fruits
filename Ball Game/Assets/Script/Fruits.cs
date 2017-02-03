@@ -62,10 +62,22 @@ public class Fruits : MonoBehaviour {
         }
     }
 
-    public void Growth()
+    public void Bigger()
     {
-
+        StartCoroutine( GetBigger());
     }
+
+    IEnumerator GetBigger()
+    {
+        transform.localScale = new Vector3(3, 3, 3);
+        transform.position = new Vector3(transform.position.x, 1.5f, transform.position.z);
+
+        yield return new WaitForSeconds(2);
+
+        transform.localScale = new Vector3(1, 1, 1);
+        transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+    }
+
 
     public void SpeedUp()
     {
@@ -85,6 +97,11 @@ public class Fruits : MonoBehaviour {
     void Death()
     {
 
+    }
+
+    public int GetFruitPosZ()
+    {
+        return (int)transform.position.z;
     }
 
     bool IsGround()      // 과일이 땅에 있으면 true, 공중에(뛰고)있으면 false
