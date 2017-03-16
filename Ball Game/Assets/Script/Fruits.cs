@@ -4,17 +4,20 @@ using System.Collections;
 public class Fruits : MonoBehaviour {
 
     const int MAX_WIDTH = 5;
+    const int normal_speed = 2;
+    const int fast_speed = 20;
+    const float jump_power = 300f;
 
     public int freshness;   //체력
-    public float speed;     //이동속도
     Rigidbody rigid;    //전반적인 물리엔진
-    public float jump_power;       //점프 정도
     public static Fruits instance;
+
+    float speed;     //이동속도
     int targetLane;     //과일이 달릴 차선
 
     void Init()
     {
-
+        speed = normal_speed;
     }
 
     void Awake()
@@ -25,6 +28,7 @@ public class Fruits : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         rigid = GetComponent<Rigidbody>();  // 리지드바디 컴포넌트 가져옴
+        Init();
 	}
 	
 	// Update is called once per frame
@@ -66,7 +70,6 @@ public class Fruits : MonoBehaviour {
     {
         StartCoroutine( GetBigger());
     }
-
     IEnumerator GetBigger()
     {
         transform.localScale = new Vector3(3, 3, 3);
@@ -79,24 +82,43 @@ public class Fruits : MonoBehaviour {
     }
 
 
-    public void SpeedUp()
+    public void Faster()
     {
+        StartCoroutine(GetFaster());
+    }
+    IEnumerator GetFaster()
+    {
+        speed = fast_speed;
 
+        yield return new WaitForSeconds(2);
+
+        speed = normal_speed;
     }
 
-    void Bruised()
+    public void Bruised()
     {
+        freshness--;
 
+        //UI에서 하트 하나 줄이기
+
+        if(freshness == 0)
+        {
+            Death();
+        }
     }
 
-    void Heal()
+    public void Heal()
     {
-
+        if (freshness != 3)
+        {
+            //UI에서 하트하나 늘리기
+            freshness++;
+        }
     }
 
     void Death()
     {
-
+        //GAME OVER
     }
 
     public int GetFruitPosZ()
