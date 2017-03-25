@@ -16,7 +16,8 @@ public class item : MonoBehaviour {
 
     void OnTriggerEnter(Collider obj)
     {
-        Action(obj);
+        if (!Fruits.instance.GetIsInvisible())
+            Action(obj);
     }
 
     public virtual void Action(Collider obj)

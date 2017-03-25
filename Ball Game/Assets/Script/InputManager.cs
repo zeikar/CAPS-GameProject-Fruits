@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour {
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Fruits.instance.Jump();
+            //Fruits.instance.JumpStart();
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {

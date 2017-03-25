@@ -8,11 +8,12 @@ public class CameraControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        offset = new Vector3(0,1.5f,-3);
+        offset = new Vector3(0,4,-5);
+        transform.Rotate(Vector3.right, 20);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        transform.position =new Vector3(offset.x, offset.y, fruit.position.z + offset.z);
+        transform.position = fruit.position + offset;
 	}
 }

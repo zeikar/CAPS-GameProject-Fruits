@@ -82,9 +82,14 @@
     <Compile Include="Assets\Script\Fruits.cs" />
     <Compile Include="Assets\Script\GameManager.cs" />
     <Compile Include="Assets\Script\InputManager.cs" />
+    <Compile Include="Assets\Script\ItemBarrier.cs" />
     <Compile Include="Assets\Script\ItemBigger.cs" />
-    <Compile Include="Assets\Script\ItemFaster.cs" />
+    <Compile Include="Assets\Script\ItemHeal.cs" />
+    <Compile Include="Assets\Script\ItemHole.cs" />
+    <Compile Include="Assets\Script\ItemSpeedUp.cs" />
+    <Compile Include="Assets\Script\ItemTube.cs" />
     <Compile Include="Assets\Script\StageCreator.cs" />
+    <Compile Include="Assets\Script\UIManager.cs" />
     <Compile Include="Assets\Script\item.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

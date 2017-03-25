@@ -1,77 +1,116 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Fruits : MonoBehaviour {
+public class Fruits : MonoBehaviour
+{
 
     const int MAX_WIDTH = 5;
-    const int normal_speed = 2;
-    const int fast_speed = 20;
-    const float jump_power = 300f;
 
     public int freshness;   //체력
-    Rigidbody rigid;    //전반적인 물리엔진
+    public int score = 0;
     public static Fruits instance;
 
-    float speed;     //이동속도
+    float speed = 5f;     //이동속도
+    Rigidbody rigid;    //전반적인 물리엔진
+    float jump_power;       //점프 정도
     int targetLane;     //과일이 달릴 차선
+
+    const float originalSpeed = 30f;
+    const float originalJumpPower = 10f;
+    const float rotateSpeed = 60f;
+
+    bool isJumping = false;
+    bool isInvisible = false;
 
     void Init()
     {
-        speed = normal_speed;
+        freshness = 3;
+        score = 0;
     }
 
     void Awake()
     {
         instance = this;
+        Init();
     }
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         rigid = GetComponent<Rigidbody>();  // 리지드바디 컴포넌트 가져옴
-        Init();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Move();
+        Jump();
+    }
 
     void FixedUpdate()
     {
-        Move(); // 앞으로 가는 함수 호출
+        //Move(); // 앞으로 가는 함수 호출
     }
 
     void Move()
     {
-        rigid.AddForce(speed * Vector3.forward); // 앞으로 가도록 
+        //rigid.AddForce(speed * Vector3.forward); // 앞으로 가도록 
 
-        transform.position += new Vector3((targetLane - transform.position.x) * 0.2f,0,0);  //차이의 0.2만큼 조금씩 이동
-    }
+        transform.position += new Vector3((targetLane - transform.position.x) * 0.2f, 0, 0);  //차이의 0.2만큼 조금씩 이동
 
-    public void Jump()
-    {
-        if (IsGround())     // 과일이 땅에 있을 때만
+        transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.World);
+        transform.Rotate(Vector3.right * speed * Time.deltaTime * rotateSpeed);
+
+        if (speed < originalSpeed)
         {
-            rigid.AddForce(jump_power * Vector3.up);    //위로 가도록
+            speed += 0.01f;
         }
-    }
 
+        score = (int)transform.position.z;
+        UIManager.instance.ScoreUpdate();
+    }
     public void Move(Vector3 v)
     {
-        int newLane = targetLane + (int)Mathf.Round(v.x);   //
+        int newLane = targetLane + (int)Mathf.Round(v.x);
 
         if (IsAbletoMove(newLane))
         {
-            targetLane =newLane;
+            targetLane = newLane;
         }
     }
 
+    public void JumpStart()
+    {
+        isJumping = true;
+        jump_power = originalJumpPower;
+    }
+    void Jump()
+    {
+        //점프
+        if (!isJumping)
+        {
+            return;
+        }
+
+        transform.Translate(Vector3.up * jump_power * Time.deltaTime, Space.World);
+
+        jump_power -= 0.2f;
+
+        if (transform.position.y < 0.5)
+        {
+            transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+            isJumping = false;
+        }
+    }
+
+
     public void Bigger()
     {
-        StartCoroutine( GetBigger());
+        StartCoroutine(GetBigger());
     }
     IEnumerator GetBigger()
     {
+        isInvisible = true;
         transform.localScale = new Vector3(3, 3, 3);
         transform.position = new Vector3(transform.position.x, 1.5f, transform.position.z);
 
@@ -79,29 +118,33 @@ public class Fruits : MonoBehaviour {
 
         transform.localScale = new Vector3(1, 1, 1);
         transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+        isInvisible = false;
     }
 
 
-    public void Faster()
+    public void SpeedUp()
     {
-        StartCoroutine(GetFaster());
+        StartCoroutine(GetSpeedUp());
     }
-    IEnumerator GetFaster()
+    IEnumerator GetSpeedUp()
     {
-        speed = fast_speed;
+        isInvisible = true;
+        speed += 20.0f;
 
         yield return new WaitForSeconds(2);
 
-        speed = normal_speed;
+        speed = originalSpeed;
+        isInvisible = false;
     }
 
     public void Bruised()
     {
         freshness--;
+        UIManager.instance.HeartUpdate();
 
-        //UI에서 하트 하나 줄이기
+        speed = -1; //맞나요? 약간 뒤로 물러나거나...
 
-        if(freshness == 0)
+        if (freshness == 0)
         {
             Death();
         }
@@ -109,16 +152,24 @@ public class Fruits : MonoBehaviour {
 
     public void Heal()
     {
-        if (freshness != 3)
+        if (freshness < 3)
         {
-            //UI에서 하트하나 늘리기
             freshness++;
+            UIManager.instance.HeartUpdate();
         }
+        //하트 하나 늘리기
+    }
+
+    public void Godown()
+    {
+        //y가 점차 감소...
+
+        Death();
     }
 
     void Death()
     {
-        //GAME OVER
+        //Fade Out
     }
 
     public int GetFruitPosZ()
@@ -131,8 +182,13 @@ public class Fruits : MonoBehaviour {
         return transform.position.y < 0.51f;
     }
 
+    public bool GetIsInvisible()
+    {
+        return isInvisible;
+    }
+
     bool IsAbletoMove(int position)
     {
-        return (position <= MAX_WIDTH/2 && position >= -MAX_WIDTH / 2);
+        return (position <= MAX_WIDTH / 2 && position >= -MAX_WIDTH / 2);
     }
 }
